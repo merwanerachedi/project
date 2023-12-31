@@ -1,12 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "raylib.h"
+#include <raylib.h>
+
 
 #define SCREEN_WIDTH 1000
 #define SCREEN_HEIGHT 800
-#define REC_HEIGTH 50
-#define REC_WIDTH 80
-#define ARROW_LENGTH 30
 
 struct Node {
     int data;
@@ -45,25 +43,37 @@ struct Node* createDoublyLinkedList(int size) {
             newNode->prev = tail;
             tail = newNode;
         }
+        
     }
+    tail->next = NULL;
     return head;
 }
 
+void drawNode(struct Node* node, Vector2 pos, int nodeCount) {
+    int rectWidth = SCREEN_WIDTH / (nodeCount * 2);
+    int rectHeight = SCREEN_HEIGHT / 20;
 
-
-void drawNode(struct Node* node, Vector2 pos) {
-    DrawRectangle((int)pos.x - REC_WIDTH, (int)pos.y -  REC_HEIGTH, REC_WIDTH, REC_HEIGTH, GREEN);
-    DrawText(TextFormat("%d", node->data), (int)pos.x-50 , (int)pos.y-35 , 20, BLACK);
+    DrawRectangle((int)pos.x - rectWidth / 2, (int)pos.y - rectHeight / 2, rectWidth, rectHeight, BLUE);
+    DrawText(TextFormat("%d", node->data), (int)pos.x - MeasureText(TextFormat("%d", node->data), 20) / 2, (int)pos.y - 10, 20, BLACK);
 }
-
 
 void drawArrow(Vector2 start, Vector2 end) {
     DrawLineV(start, end, BLACK);
-    ;
-  
+
+   // Vector2 arrow[3] = { {end.x, end.y}, {end.x - 5, end.y - 5}, {end.x + 5, end.y - 5} };
+    //DrawTriangleLines(arrow[0], arrow[1], arrow[2], BLACK);
 }
+  
 
 void visualizeDoublyLinkedList(struct Node* head) {
+    int nodeCount = 0;
+    struct Node* temp = head;
+
+    while (temp != NULL) {
+        nodeCount++;
+        temp = temp->next;
+    }
+
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Doubly Linked List Visualization");
     SetTargetFPS(60);
 
@@ -73,23 +83,33 @@ void visualizeDoublyLinkedList(struct Node* head) {
 
         int count = 0;
         struct Node* current = head;
-        Vector2 nodePosition = {100, SCREEN_HEIGHT / 2};
+        Vector2 nodePosition = {SCREEN_WIDTH / (nodeCount + 1), SCREEN_HEIGHT / 2};
 
         while (current != NULL) {
-            drawNode(current, nodePosition);
+            drawNode(current, nodePosition, nodeCount);
 
             if (current->next != NULL) {
-            drawArrow((Vector2){nodePosition.x,nodePosition.y-35 }, (Vector2){nodePosition.x + REC_WIDTH * 2  + ARROW_LENGTH , nodePosition.y-35});
-            Vector2 end = (Vector2){nodePosition.x + REC_WIDTH * 2  + ARROW_LENGTH , nodePosition.y-35};
-            DrawTriangle(end, (Vector2){end.x -5, end.y - 5}, (Vector2){end.x - 5, end.y + 5}, BLACK);
+                Vector2 arrowStart = {nodePosition.x + (SCREEN_WIDTH / (nodeCount * 2))/2, nodePosition.y+5};
+                Vector2 arrowEnd = {nodePosition.x + (SCREEN_WIDTH / nodeCount + 1) - (SCREEN_WIDTH / (nodeCount * 2))/2, nodePosition.y+5};
+                
+                drawArrow(arrowStart, arrowEnd);
+                
+                Vector2 arrowStart2 = {nodePosition.x + (SCREEN_WIDTH / (nodeCount * 2))/2, nodePosition.y-5};
+                Vector2 arrowEnd2 = {nodePosition.x + (SCREEN_WIDTH / nodeCount + 1) - (SCREEN_WIDTH / (nodeCount * 2))/2, nodePosition.y-5};
+              
+                drawArrow(arrowStart2, arrowEnd2);
+                
+                
+                DrawTriangle(arrowStart, (Vector2){arrowStart.x +5, arrowStart.y + 5}, (Vector2){arrowStart.x + 5, arrowStart.y - 5}, BLACK);
             }
-            if (current->prev != NULL) {
-                drawArrow((Vector2){nodePosition.x - REC_WIDTH, nodePosition.y-15}, (Vector2){nodePosition.x - REC_WIDTH * 3 - ARROW_LENGTH + 2, nodePosition.y-15});
-                Vector2 end = (Vector2){nodePosition.x - REC_WIDTH * 3 - ARROW_LENGTH + 2, nodePosition.y-15};
-                DrawTriangle(end, (Vector2){end.x +5, end.y + 5}, (Vector2){end.x + 5, end.y - 5}, BLACK);
+            
+            if(current->prev != NULL){
+                Vector2 arrowStart = {nodePosition.x - (SCREEN_WIDTH / (nodeCount * 2))/2, nodePosition.y-5};
+                
+                DrawTriangle(arrowStart, (Vector2){arrowStart.x -5, arrowStart.y - 5}, (Vector2){arrowStart.x - 5, arrowStart.y + 5}, BLACK);
             }
 
-            nodePosition.x += REC_WIDTH * 3 + ARROW_LENGTH;
+            nodePosition.x += SCREEN_WIDTH / (nodeCount + 1);
             current = current->next;
             count++;
         }

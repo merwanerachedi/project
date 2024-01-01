@@ -104,6 +104,7 @@ void drawNode(struct Node* node, Vector2 pos, int nodeCount) {
     int rectHeight = SCREEN_HEIGHT / 20;
 
     DrawRectangle((int)pos.x - rectWidth / 2, (int)pos.y - rectHeight / 2, rectWidth, rectHeight, node->col);
+    DrawRectangleLines((int)pos.x - rectWidth / 2, (int)pos.y - rectHeight / 2, rectWidth, rectHeight, BLACK);
     DrawText(TextFormat("%d", node->data), (int)pos.x - MeasureText(TextFormat("%d", node->data), 20) / 2, (int)pos.y - 10, 20, BLACK);
 }
 
@@ -233,6 +234,7 @@ int main() {
     ClearBackground(RAYWHITE);
     DrawText("Welcome, press the button below to create a DLL.",SCREEN_WIDTH/2- MeasureText("donnez le nombre d'elements de la dll",20)+120,SCREEN_HEIGHT/3,20,BLACK);
     DrawRectangleRec(button_0.rec,button_0.col);
+    DrawRectangleLines(SCREEN_WIDTH / 2 - buttonWidth / 2 , SCREEN_HEIGHT / 2 - buttonHeight / 2 , buttonWidth , buttonHeight , BLACK );
     DrawText("Create",button_0.rec.x + button_0.rec.width / 2 - MeasureText("Create",20) + 30,button_0.rec.y + button_0.rec.height / 2 - 20 / 2, 20 , BLACK );
     
     EndTextureMode();
@@ -268,8 +270,9 @@ int main() {
         if(step2)
        { 
         BeginTextureMode(target);
-        ClearBackground(RAYWHITE);
+        ClearBackground(GRAY);
         DrawRectangleRec(button.rec, button.col);
+        DrawRectangleLines(SCREEN_WIDTH / 2 - buttonWidth / 2 , SCREEN_HEIGHT / 2 - buttonHeight / 2 , buttonWidth , buttonHeight , WHITE );
 
         DrawText(text, textPosition.x, textPosition.y, 40, WHITE); // Display the entered digits
 
@@ -302,10 +305,12 @@ int main() {
             DrawText("select one of the choices below.", SCREEN_WIDTH / 2 - MeasureText("select one of the choices below.", 20) / 2, SCREEN_HEIGHT / 2 - 100 , 20, BLACK);
         
             DrawRectangleRec(button_random.rec, button_random.col);
-            DrawText("random values",button_random.rec.x + button_random.rec.width / 2 - MeasureText("random values",20) + 80,button_random.rec.y + button_random.rec.height / 2 - 20 / 2 ,20,BLACK);
+            DrawRectangleLines(SCREEN_WIDTH / 2 - buttonWidth * (3 / 2) , SCREEN_HEIGHT / 2 + buttonHeight / 2 , buttonWidth / 2 , buttonHeight , BLACK );
+            DrawText("random values",button_random.rec.x + button_random.rec.width / 2 - MeasureText("random values",18) + 70,button_random.rec.y + button_random.rec.height / 2 - 20 / 2 ,18,BLACK);
             
             DrawRectangleRec(button_set.rec, button_set.col);
-            DrawText("pre set values",button_set.rec.x + button_set.rec.width / 2 - MeasureText("pre set values",20) + 80,button_set.rec.y + button_set.rec.height / 2 - 20 / 2 ,20,BLACK);
+            DrawRectangleLines(SCREEN_WIDTH / 2 + buttonWidth / 3 , SCREEN_HEIGHT / 2 + buttonHeight / 2  , buttonWidth / 2 , buttonHeight , BLACK );
+            DrawText("pre set values",button_set.rec.x + button_set.rec.width / 2 - MeasureText("pre set values",18) + 70,button_set.rec.y + button_set.rec.height / 2 - 20 / 2 ,18,BLACK);
             
             
             EndTextureMode();
@@ -330,7 +335,7 @@ int main() {
        {
            
     BeginTextureMode(target);
-    ClearBackground(RAYWHITE);
+    ClearBackground(GRAY);
     DrawText("Enter values for the Doubly Linked List:", SCREEN_WIDTH / 2 - MeasureText("Enter values for the Doubly Linked List:", 20) / 2, SCREEN_HEIGHT / 4, 20, BLACK);
     DrawText("Press ENTER after each input.", SCREEN_WIDTH / 2 - MeasureText("Press ENTER after each input.", 20) / 2, SCREEN_HEIGHT / 4 + 40, 20, BLACK);
     EndTextureMode();
@@ -375,6 +380,7 @@ int main() {
     }
            BeginTextureMode(target);
            DrawRectangleRec(button.rec, button.col);
+           DrawRectangleLines(SCREEN_WIDTH / 2 - buttonWidth / 2 , SCREEN_HEIGHT / 2 - buttonHeight / 2 , buttonWidth , buttonHeight , WHITE );
            DrawText(inputText,textPositionInput.x,textPositionInput.y,40,GREEN);
            EndTextureMode();
        }
@@ -394,7 +400,12 @@ int main() {
        //debut final step for creation
        if(step5)
        {
+
+           
+           
            visualizeDoublyLinkedList(head,target);
+           
+           
              
        }
 

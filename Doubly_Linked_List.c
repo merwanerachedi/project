@@ -225,16 +225,16 @@ int main() {
     init_button(&button_set,(Rectangle){SCREEN_WIDTH / 2 + buttonWidth / 3 , SCREEN_HEIGHT / 2 + buttonHeight / 2  , buttonWidth / 2 , buttonHeight }, RED);
 
      Button button_sort = { 0 };
-   init_button(&button_sort, (Rectangle){30, SCREEN_HEIGHT - 50, 180, 40}, GREEN);
+   init_button(&button_sort, (Rectangle){30, SCREEN_HEIGHT - 50, buttonWidth / 2, buttonHeight / 2 - 20}, GREEN);
    
    Button button_supp = { 0 };
-   init_button(&button_supp, (Rectangle){220, SCREEN_HEIGHT - 50, 180, 40}, GREEN);
+   init_button(&button_supp, (Rectangle){button_sort.rec.width + 40, SCREEN_HEIGHT - 50, buttonWidth / 2, buttonHeight / 2 - 20}, GREEN);
    
    Button button_insert = { 0 };
-   init_button(&button_insert, (Rectangle){410, SCREEN_HEIGHT - 50, 180, 40}, GREEN);
+   init_button(&button_insert, (Rectangle){button_supp.rec.width * 2 + 50, SCREEN_HEIGHT - 50, buttonWidth / 2, buttonHeight / 2 - 20}, GREEN);
    
    Button button_new = { 0 };
-   init_button(&button_new, (Rectangle){30, 30 , 180, 40}, GREEN);
+   init_button(&button_new, (Rectangle){30, 30 , buttonWidth / 2 , buttonHeight / 2 - 20}, GREEN);
 
     // varibles de deroulement
     bool step1 = true;
@@ -252,8 +252,8 @@ int main() {
     int enteredNumber = 0;
     bool dataInputComplete = false;
     
-    static int* values;
-    struct Node* head;
+    static int* values = NULL;
+    struct Node* head = NULL;
     int currentNode = 1;
     
     int nodeCount = 0;
@@ -271,7 +271,7 @@ int main() {
      {
     BeginTextureMode(target);
     ClearBackground(RAYWHITE);
-    DrawText("Welcome, press the button below to create a DLL.",SCREEN_WIDTH/2- MeasureText("donnez le nombre d'elements de la dll",20)+120,SCREEN_HEIGHT/3,20,BLACK);
+    DrawText("Welcome, press the button below to create a DLL.",SCREEN_WIDTH/2- MeasureText("Welcome, press the button below to create a DLL.",20)+250,SCREEN_HEIGHT/3,20,BLACK);
     DrawRectangleRec(button_0.rec,button_0.col);
     DrawRectangleLines(SCREEN_WIDTH / 2 - buttonWidth / 2 , SCREEN_HEIGHT / 2 - buttonHeight / 2 , buttonWidth , buttonHeight , BLACK );
     DrawText("Create",button_0.rec.x + button_0.rec.width / 2 - MeasureText("Create",20) + 30,button_0.rec.y + button_0.rec.height / 2 - 20 / 2, 20 , BLACK );
@@ -285,9 +285,12 @@ int main() {
      step1=false;
      step2 = true;
      }
-    
-       
-        if (!inputComplete) {
+   
+        
+        //debut step2
+        if(step2)
+       { 
+   if (!inputComplete) {
             int key = GetKeyPressed(); // Get the pressed key 
 
             if ((key >= 48 && key <= 57) && (textSize < 63)) { // Check if the key is a number and within text limit
@@ -304,10 +307,6 @@ int main() {
                 enteredNumber = atoi(text); // Convert the entered text to an integer
             }
         }
-        
-        //debut step2
-        if(step2)
-       { 
         BeginTextureMode(target);
         ClearBackground(GRAY);
         DrawRectangleRec(button.rec, button.col);
@@ -316,19 +315,19 @@ int main() {
         DrawText(text, textPosition.x, textPosition.y, 40, WHITE); // Display the entered digits
 
         if (!inputComplete ) {
-            DrawText("Enter the size of the DLL.", SCREEN_WIDTH / 2 - MeasureText("Enter the size of the DLL.", 20) / 2, SCREEN_HEIGHT / 2 - 100 , 20, BLACK);
-            DrawText("Click on the ENTER key to finalize input.", SCREEN_WIDTH / 2 - MeasureText("Click on the ENTER key to finalize input.", 20) / 2, SCREEN_HEIGHT / 2 + 120, 20, BLACK);
+            DrawText("Enter the size of the DLL.", SCREEN_WIDTH / 2 - MeasureText("Enter the size of the DLL.", 20) / 2, SCREEN_HEIGHT / 2 - buttonHeight / 2 - 50 , 20, BLACK);
+            DrawText("Click on the ENTER key to finalize input.", SCREEN_WIDTH / 2 - MeasureText("Click on the ENTER key to finalize input.", 20) / 2, SCREEN_HEIGHT / 2 - buttonHeight / 2 + 140, 20, BLACK);
         }
         else  {
-            DrawText("Input Completed!", SCREEN_WIDTH / 2 - MeasureText("Input Completed!", 20) / 2, SCREEN_HEIGHT / 2 + 120, 20, BLACK);
-            DrawText("press on the SPACEBAR for the next step.", SCREEN_WIDTH / 2 - MeasureText("press on the SPACEBAR for the next step!", 20) / 2, SCREEN_HEIGHT / 2 + 160, 20, BLACK);
+            DrawText("Input Completed!", SCREEN_WIDTH / 2 - MeasureText("Input Completed!", 20) / 2, SCREEN_HEIGHT / 2 - buttonHeight / 2 + 130, 20, BLACK);
+            DrawText("press on the SPACEBAR for the next step.", SCREEN_WIDTH / 2 - MeasureText("press on the SPACEBAR for the next step!", 20) / 2, SCREEN_HEIGHT / 2 - buttonHeight / 2 + 170, 20, BLACK);
             
         }
 
         EndTextureMode();
         
         }
-        if(IsKeyPressed(KEY_SPACE))
+        if(IsKeyPressed(KEY_SPACE) && inputComplete )
         {
             step2 = false;
             step3 = true;
@@ -345,11 +344,11 @@ int main() {
         
             DrawRectangleRec(button_random.rec, button_random.col);
             DrawRectangleLines(SCREEN_WIDTH / 2 - buttonWidth * (3 / 2) , SCREEN_HEIGHT / 2 + buttonHeight / 2 , buttonWidth / 2 , buttonHeight , BLACK );
-            DrawText("random values",button_random.rec.x + button_random.rec.width / 2 - MeasureText("random values",18) + 70,button_random.rec.y + button_random.rec.height / 2 - 20 / 2 ,18,BLACK);
+            DrawText("random values",button_random.rec.x + button_random.rec.width / 2 - MeasureText("random values",18) + 60,button_random.rec.y + button_random.rec.height / 2 - 20 / 2 ,18,BLACK);
             
             DrawRectangleRec(button_set.rec, button_set.col);
             DrawRectangleLines(SCREEN_WIDTH / 2 + buttonWidth / 3 , SCREEN_HEIGHT / 2 + buttonHeight / 2  , buttonWidth / 2 , buttonHeight , BLACK );
-            DrawText("pre set values",button_set.rec.x + button_set.rec.width / 2 - MeasureText("pre set values",18) + 70,button_set.rec.y + button_set.rec.height / 2 - 20 / 2 ,18,BLACK);
+            DrawText("pre set values",button_set.rec.x + button_set.rec.width / 2 - MeasureText("pre set values",18) + 60,button_set.rec.y + button_set.rec.height / 2 - 20 / 2 ,18,BLACK);
             
             
             EndTextureMode();
@@ -475,10 +474,40 @@ int main() {
              EndTextureMode();
            
         }
+        
+        
        
- if (is_left_click_pressed(button_sort)) {
+           if (is_left_click_pressed(button_sort))
+               {
             selectionSortDoublyLinkedList(head);
-        }
+               }
+               
+           if (is_left_click_pressed(button_new))
+               {
+                   
+                    textSize = 0;
+    
+    
+     inputComplete = false;
+     enteredNumber = 0;
+     dataInputComplete = false;
+    
+    
+    
+    currentNode = 1;
+    
+     nodeCount = 0;
+    
+    
+            step2 = true;
+            step5 = false;
+            
+            
+               }
+        
+        
+        
+        
         //debute main inter
         BeginDrawing();
         ClearBackground(RAYWHITE);
@@ -495,11 +524,14 @@ int main() {
         EndDrawing();
     }
 
-    
+    free(values);
+    free(head);
 
     CloseWindow();
     return 0;
 }
+
+
 
     return 0;
 }

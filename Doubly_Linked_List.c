@@ -11,6 +11,7 @@ typedef struct Button {
     Color col;
 } Button;
 
+
 // Initializes button properties
 void init_button(Button *but, Rectangle rect, Color colr) {
     but->rec = rect;
@@ -163,6 +164,32 @@ void visualizeDoublyLinkedList(struct Node* head,RenderTexture2D canvas)
         EndTextureMode();
              
        }
+       void selectionSortDoublyLinkedList(struct Node* head) {
+    if (head == NULL || head->next == NULL) {
+        return; // Nothing to sort if the list is empty or has only one node
+    }
+
+    struct Node* current = head;
+
+    while (current->next != NULL) {
+        struct Node* minNode = current;
+        struct Node* temp = current->next;
+
+        while (temp != NULL) {
+            if (temp->data < minNode->data) {
+                minNode = temp;
+            }
+            temp = temp->next;
+        }
+
+        // Swap data between current and minNode
+        int tempData = current->data;
+        current->data = minNode->data;
+        minNode->data = tempData;
+
+        current = current->next;
+    }
+}
 
 
 
@@ -196,7 +223,19 @@ int main() {
     
     Button button_set = { 0 };
     init_button(&button_set,(Rectangle){SCREEN_WIDTH / 2 + buttonWidth / 3 , SCREEN_HEIGHT / 2 + buttonHeight / 2  , buttonWidth / 2 , buttonHeight }, RED);
-    
+
+     Button button_sort = { 0 };
+   init_button(&button_sort, (Rectangle){30, SCREEN_HEIGHT - 50, 180, 40}, GREEN);
+   
+   Button button_supp = { 0 };
+   init_button(&button_supp, (Rectangle){220, SCREEN_HEIGHT - 50, 180, 40}, GREEN);
+   
+   Button button_insert = { 0 };
+   init_button(&button_insert, (Rectangle){410, SCREEN_HEIGHT - 50, 180, 40}, GREEN);
+   
+   Button button_new = { 0 };
+   init_button(&button_new, (Rectangle){30, 30 , 180, 40}, GREEN);
+
     // varibles de deroulement
     bool step1 = true;
     bool step2 = false;
@@ -211,7 +250,7 @@ int main() {
     Vector2 textPosition = { SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT / 2 - 10 };
     bool inputComplete = false;
     int enteredNumber = 0;
-    
+    bool dataInputComplete = false;
     
     static int* values;
     struct Node* head;
@@ -260,7 +299,7 @@ int main() {
                 text[textSize] = '\0'; // Null-terminate the string to erase the last character
             }
 
-            if (IsKeyPressed(KEY_ENTER)) { // Clicking on ENTER will finalize the input
+            if (IsKeyPressed(KEY_ENTER) && (atoi(text) != 0)) { // Clicking on ENTER will finalize the input
                 inputComplete = true;
                 enteredNumber = atoi(text); // Convert the entered text to an integer
             }
@@ -276,11 +315,11 @@ int main() {
 
         DrawText(text, textPosition.x, textPosition.y, 40, WHITE); // Display the entered digits
 
-        if (!inputComplete) {
+        if (!inputComplete ) {
             DrawText("Enter the size of the DLL.", SCREEN_WIDTH / 2 - MeasureText("Enter the size of the DLL.", 20) / 2, SCREEN_HEIGHT / 2 - 100 , 20, BLACK);
             DrawText("Click on the ENTER key to finalize input.", SCREEN_WIDTH / 2 - MeasureText("Click on the ENTER key to finalize input.", 20) / 2, SCREEN_HEIGHT / 2 + 120, 20, BLACK);
         }
-        else {
+        else  {
             DrawText("Input Completed!", SCREEN_WIDTH / 2 - MeasureText("Input Completed!", 20) / 2, SCREEN_HEIGHT / 2 + 120, 20, BLACK);
             DrawText("press on the SPACEBAR for the next step.", SCREEN_WIDTH / 2 - MeasureText("press on the SPACEBAR for the next step!", 20) / 2, SCREEN_HEIGHT / 2 + 160, 20, BLACK);
             
@@ -297,7 +336,7 @@ int main() {
         
         
         //debut step3
-        if(step3 && !step1 && !step2)
+        if(step3 && enteredNumber > 0)
         {
             BeginTextureMode(target);
             ClearBackground(RAYWHITE);
@@ -317,6 +356,7 @@ int main() {
         }
         
         
+       if(step3) {
         
         if(is_left_click_pressed(button_set))
         {
@@ -329,6 +369,7 @@ int main() {
             step4_2 = true;
         }
         
+       }
         
         //debut step4_1
        if(step4_1)
@@ -374,9 +415,13 @@ int main() {
         }
     }
     else {
-         head = createDoublyLinkedList(values,enteredNumber);
-        step4_1 = false ;
-        step5 = true;
+        // L'apparition du bouton de tri apres la saisez des donnes 
+        if (currentNode > enteredNumber) {
+    head = createDoublyLinkedList(values, enteredNumber);
+    step4_1 = false;
+    step5 = true;
+    dataInputComplete = true; // Ajout de cette ligne
+}
     }
            BeginTextureMode(target);
            DrawRectangleRec(button.rec, button.col);
@@ -403,21 +448,58 @@ int main() {
 
            
            
-           visualizeDoublyLinkedList(head,target);
-           
-           
+         visualizeDoublyLinkedList(head, target);
+         
+             BeginTextureMode(target);
              
-       }
-
+             DrawRectangleRec(button_sort.rec, button_sort.col);
+             DrawRectangleLines(button_sort.rec.x, button_sort.rec.y, button_sort.rec.width, button_sort.rec.height, BLACK);
+             DrawText("Trie  ", button_sort.rec.x + button_sort.rec.width / 2 - MeasureText("Trie ", 20) / 2,
+             button_sort.rec.y + button_sort.rec.height / 2 - 20 / 2, 20, BLACK);
+             
+             DrawRectangleRec(button_insert.rec, button_insert.col);
+             DrawRectangleLines(button_insert.rec.x, button_insert.rec.y, button_insert.rec.width, button_insert.rec.height, BLACK);
+             DrawText("insertion  ", button_insert.rec.x + button_insert.rec.width / 2 - MeasureText("insertion ", 20) / 2,
+             button_insert.rec.y + button_insert.rec.height / 2 - 20 / 2, 20, BLACK);
+             
+             DrawRectangleRec(button_supp.rec, button_supp.col);
+             DrawRectangleLines(button_supp.rec.x, button_supp.rec.y, button_supp.rec.width, button_supp.rec.height, BLACK);
+             DrawText("suppression  ", button_supp.rec.x + button_supp.rec.width / 2 - MeasureText("suppression ", 20) / 2,
+             button_supp.rec.y + button_supp.rec.height / 2 - 20 / 2, 20, BLACK);
+             
+             DrawRectangleRec(button_new.rec, button_new.col);
+             DrawRectangleLines(button_new.rec.x, button_new.rec.y, button_new.rec.width, button_new.rec.height, BLACK);
+             DrawText("create  ", button_new.rec.x + button_new.rec.width / 2 - MeasureText("create ", 20) / 2,
+             button_new.rec.y + button_new.rec.height / 2 - 20 / 2, 20, BLACK);
+             
+             EndTextureMode();
+           
+        }
+       
+ if (is_left_click_pressed(button_sort)) {
+            selectionSortDoublyLinkedList(head);
+        }
         //debute main inter
         BeginDrawing();
         ClearBackground(RAYWHITE);
         DrawTextureRec(target.texture, (Rectangle) { 0, 0, (float)target.texture.width, (float)-target.texture.height }, (Vector2) { 0, 0 }, WHITE);
+         
+        
+        ;
+
+        
+
+        
+       
+
         EndDrawing();
     }
 
     
 
     CloseWindow();
+    return 0;
+}
+
     return 0;
 }

@@ -89,6 +89,66 @@ struct Node* createRandomDoublyLinkedList(int size){
     return head;
 }
 
+//Check if value is in the Dll  
+int isNumberInList(struct Node* head, int number) {
+    while (head != NULL) {
+        if (head->data == number) {
+            return 1;  // Number is found
+        }
+        head = head->next;
+    }
+    return 0;  // Number is not found
+}
+
+//Delete element in DLL 
+struct Node* DeleteElement(struct Node** head,int value) { 
+
+    struct Node* current = *head;
+
+    while (current != NULL && current->data != value) {
+        current = current->next;
+    }
+    
+     // If the node to be deleted is the head
+    if (current == *head) {
+        *head = current->next;
+    }
+    
+     // Adjust the pointers of the previous and next nodes
+    if (current->prev != NULL) {
+        current->prev->next = current->next;
+    }
+    if (current->next != NULL) {
+        current->next->prev = current->prev;
+    }
+
+    // Free the memory of the deleted node
+    free(current);
+
+return head;
+}
+
+//insert element par la tete 
+void insertAtHead(struct Node** head, int value) {
+    // Create a new node
+    struct Node* newNode = createNode(value);
+    if (newNode == NULL) {
+        printf("Memory allocation error\n");
+        exit(EXIT_FAILURE);
+    }
+    newNode->data = value;
+    newNode->prev = NULL;
+    newNode->next = *head;
+
+    // If the list is not empty, update the previous pointer of the current head
+    if (*head != NULL) {
+        (*head)->prev = newNode;
+    }
+
+    // Update the head pointer to the new node
+    *head = newNode;
+}
+
 //noeud represent
 void drawNode(struct Node* node, Vector2 pos, int nodeCount) {
     int rectWidth = SCREEN_WIDTH / (nodeCount * 2);
@@ -150,6 +210,7 @@ void visualizeDoublyLinkedList(struct Node* head,RenderTexture2D canvas){
     EndTextureMode();
 }
 
+//trie pas selection 
  void selectionSortDoublyLinkedList(struct Node* head) {
     if (head == NULL || head->next == NULL) {
         return; // Nothing to sort if the list is empty or has only one node
@@ -202,6 +263,9 @@ int main(){
     Button button = { 0 };
     init_button(&button, (Rectangle) { SCREEN_WIDTH / 2 - buttonWidth / 2, SCREEN_HEIGHT / 2 - buttonHeight / 2, buttonWidth, buttonHeight }, BLACK);
     
+    Button button_del = { 0 };
+    init_button(&button_del, (Rectangle) { SCREEN_WIDTH / 2 - buttonWidth / 2, SCREEN_HEIGHT / 2 - buttonHeight / 2, buttonWidth, buttonHeight }, BLACK);
+    
     Button button_random = { 0 };
     init_button(&button_random,(Rectangle){SCREEN_WIDTH / 2 - buttonWidth * (3 / 2) , SCREEN_HEIGHT / 2 + buttonHeight / 2 , buttonWidth / 2 , buttonHeight }, RED);
     
@@ -227,7 +291,10 @@ int main(){
     bool step4_1 = false;
     bool step4_2 = false;
     bool step5 = false;
-   
+    bool step6 = false;
+    bool step7 = false;
+    bool NoDel = false; 
+
     // Text input properties
     int textSize = 0;
     char text[64] = { 0 };
@@ -324,7 +391,7 @@ int main(){
             EndTextureMode();
         }
  
-       if(step3){
+        if(step3){
             if(is_left_click_pressed(button_set)){
                 step3 = false;
                 step4_1 = true;
@@ -334,7 +401,7 @@ int main(){
                 step3 = false;
                 step4_2 = true;
             }
-       }
+        }
         
         //debut step4_1
         if(step4_1){ 
@@ -426,16 +493,22 @@ int main(){
             DrawRectangleLines(button_new.rec.x, button_new.rec.y, button_new.rec.width, button_new.rec.height, BLACK);
             DrawText("create  ", button_new.rec.x + button_new.rec.width / 2 - MeasureText("create ", 20) / 2,
             button_new.rec.y + button_new.rec.height / 2 - 20 / 2, 20, BLACK);
-             
-            EndTextureMode();          
+            
+            if (NoDel){
+                DrawText("No deleted element", SCREEN_WIDTH / 1.8 + MeasureText("No deleted element", 20) / 2, SCREEN_HEIGHT / 13, 20, BLACK); 
+            }
+            EndTextureMode();             
         }
  
         if (is_left_click_pressed(button_sort)){
+            NoDel = false;  
             selectionSortDoublyLinkedList(head);
         }
                
-        if (is_left_click_pressed(button_new)){
+        if (is_left_click_pressed(button_new)){ 
+            NoDel = false;  
             textSize = 0;
+            text[textSize]=0;
 
             inputComplete = false;
             enteredNumber = 0;
@@ -448,7 +521,123 @@ int main(){
             step2 = true;
             step5 = false;
         }
+        
+        if (is_left_click_pressed(button_supp)){
+            NoDel = false;  
+            textSize = 0;
+            text[textSize]=0;
+            inputComplete = false;
+            enteredNumber = 0;
+            dataInputComplete = false;
+            step5 = false;
+            step6 = true;
+        }
+        
+        if (is_left_click_pressed(button_insert)){
+            NoDel = false;  
+            textSize = 0;
+            text[textSize]=0;
+            inputComplete = false;
+            enteredNumber = 0;
+            dataInputComplete = false;
+            step5 = false;
+            step7 = true;
+        }
+        
+        //debut step 6
+        if(step6){
+            if (!inputComplete) {
+                int key = GetKeyPressed(); // Get the pressed key 
 
+                if ((key >= 48 && key <= 57) && (textSize < 63)) { // Check if the key is a number and within text limit
+                    text[textSize] = (char)key; // Store entered digit in the text array
+                    textSize++;
+                }
+                else if (key == KEY_BACKSPACE && textSize > 0) { // Check for backspace to delete the last digit
+                    textSize--;
+                    text[textSize] = '\0'; // Null-terminate the string to erase the last character
+                }
+
+                if (IsKeyPressed(KEY_ENTER) && (atoi(text) != 0)) { // Clicking on ENTER will finalize the input
+                    inputComplete = true;
+                    enteredNumber = atoi(text); // Convert the entered text to an integer
+                }
+            }
+            
+            BeginTextureMode(target);
+            ClearBackground(GRAY);
+            DrawRectangleRec(button.rec, button.col);
+            DrawRectangleLines(SCREEN_WIDTH / 2 - buttonWidth / 2 , SCREEN_HEIGHT / 2 - buttonHeight / 2 , buttonWidth , buttonHeight , WHITE );
+
+            DrawText(text, textPosition.x, textPosition.y, 40, WHITE); // Display the entered digits
+
+            if (!inputComplete ) {
+                DrawText("Enter the value of the element to add", SCREEN_WIDTH / 2 - MeasureText("Enter the value of the element to add", 20) / 2, SCREEN_HEIGHT / 2 - buttonHeight , 20, BLACK);
+                DrawText("Click on the ENTER key to finalize input.", SCREEN_WIDTH / 2 - MeasureText("Click on the ENTER key to finalize input.", 20) / 2, SCREEN_HEIGHT / 2 + buttonHeight , 20, BLACK);
+            }
+            else{
+                DrawText("Input Completed!", SCREEN_WIDTH / 2 - MeasureText("Input Completed!", 20) / 2, SCREEN_HEIGHT / 2 - buttonHeight / 2 + 130, 20, BLACK);
+                DrawText("press on the SPACEBAR for the next step.", SCREEN_WIDTH / 2 - MeasureText("press on the SPACEBAR for the next step!", 20) / 2, SCREEN_HEIGHT / 2 - buttonHeight / 2 + 170, 20, BLACK);     
+            }
+            EndTextureMode();
+            
+            if(IsKeyPressed(KEY_SPACE) && inputComplete){
+                if(isNumberInList(head,enteredNumber)){    
+                    DeleteElement(&head,enteredNumber);                    
+                }
+                else{
+                    NoDel = true; 
+                }
+                step6 = false;
+                step5 = true;
+            }
+        }
+        
+        //debut step7
+        if(step7){
+            if (!inputComplete) {
+                int key = GetKeyPressed(); // Get the pressed key 
+
+                if ((key >= 48 && key <= 57) && (textSize < 63)) { // Check if the key is a number and within text limit
+                    text[textSize] = (char)key; // Store entered digit in the text array
+                    textSize++;
+                }
+                else if (key == KEY_BACKSPACE && textSize > 0) { // Check for backspace to delete the last digit
+                    textSize--;
+                    text[textSize] = '\0'; // Null-terminate the string to erase the last character
+                }
+
+                if (IsKeyPressed(KEY_ENTER) && (atoi(text) != 0)) { // Clicking on ENTER will finalize the input
+                    inputComplete = true;
+                    enteredNumber = atoi(text); // Convert the entered text to an integer
+                }
+            }
+            
+            BeginTextureMode(target);
+            ClearBackground(GRAY);
+            DrawRectangleRec(button.rec, button.col);
+            DrawRectangleLines(SCREEN_WIDTH / 2 - buttonWidth / 2 , SCREEN_HEIGHT / 2 - buttonHeight / 2 , buttonWidth , buttonHeight , WHITE );
+
+            DrawText(text, textPosition.x, textPosition.y, 40, WHITE); // Display the entered digits
+
+            if (!inputComplete ) {
+                DrawText("Enter the value of the element to add", SCREEN_WIDTH / 2 - MeasureText("Enter the value of the element to add", 20) / 2, SCREEN_HEIGHT / 2 - buttonHeight , 20, BLACK);
+                DrawText("Click on the ENTER key to finalize input.", SCREEN_WIDTH / 2 - MeasureText("Click on the ENTER key to finalize input.", 20) / 2, SCREEN_HEIGHT / 2 + buttonHeight , 20, BLACK);
+            }
+            else{
+                DrawText("Input Completed!", SCREEN_WIDTH / 2 - MeasureText("Input Completed!", 20) / 2, SCREEN_HEIGHT / 2 - buttonHeight / 2 + 130, 20, BLACK);
+                DrawText("press on the SPACEBAR for the next step.", SCREEN_WIDTH / 2 - MeasureText("press on the SPACEBAR for the next step!", 20) / 2, SCREEN_HEIGHT / 2 - buttonHeight / 2 + 170, 20, BLACK);     
+            }
+            EndTextureMode();
+             
+            if(IsKeyPressed(KEY_SPACE) && inputComplete ){
+                insertAtHead(&head,enteredNumber);
+                step7 = false;
+                step5 = true;
+            }
+        }
+        
+      
         //debute main inter
         BeginDrawing();
         ClearBackground(RAYWHITE);

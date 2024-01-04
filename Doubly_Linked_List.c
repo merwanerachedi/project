@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <raylib.h>
+#include <string.h>
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
@@ -114,7 +115,7 @@ void visualizeDoublyLinkedList(struct Node* head,RenderTexture2D canvas){
         temp = temp->next;
     }
     BeginTextureMode(canvas);
-    ClearBackground(RAYWHITE);
+    
              
     int count = 0;
     struct Node* current = head;
@@ -149,7 +150,32 @@ void visualizeDoublyLinkedList(struct Node* head,RenderTexture2D canvas){
     }
     EndTextureMode();
 }
-
+  
+  
+  //fonction to change color of current node
+  void change_color(struct Node *current,Color col)
+  {
+      current->col=col;
+      
+  }
+  
+  //fonction to search
+  void search_val(struct Node *current,int val,bool *st)
+  {
+        if (current != NULL){
+        if(current->prev != NULL) change_color((current->prev),BLUE);
+       if(current->data == val){
+          change_color((current),GREEN);
+          *st = true;
+      }else{
+          change_color(current,RED);
+          
+      }
+     }
+      
+  }
+  
+  //fonction to sort
  void selectionSortDoublyLinkedList(struct Node* head) {
     if (head == NULL || head->next == NULL) {
         return; // Nothing to sort if the list is empty or has only one node
@@ -195,6 +221,7 @@ int main(){
     float buttonWidth = SCREEN_WIDTH * 0.4f;
     float buttonHeight = SCREEN_HEIGHT * 0.2f;
     
+
     //button setup
     Button button_0 = {0};
     init_button(&button_0,(Rectangle){SCREEN_WIDTH / 2 - buttonWidth / 2 , SCREEN_HEIGHT / 2 - buttonHeight / 2 , buttonWidth , buttonHeight }, RED);
@@ -219,6 +246,9 @@ int main(){
    
     Button button_new = { 0 };
     init_button(&button_new, (Rectangle){30, 30 , buttonWidth / 2 , buttonHeight / 2 - 20}, GREEN);
+    
+    Button button_search = { 0 };
+    init_button(&button_search, (Rectangle){SCREEN_WIDTH - buttonWidth / 2 - 30 , 30 , buttonWidth / 2 , buttonHeight / 2 - 20}, GREEN);
 
     // varibles de deroulement
     bool step1 = true;
@@ -227,6 +257,10 @@ int main(){
     bool step4_1 = false;
     bool step4_2 = false;
     bool step5 = false;
+    bool step_search = false;
+    bool step_search_val = false;
+    bool start=false;
+    bool occ = false;
    
     // Text input properties
     int textSize = 0;
@@ -235,6 +269,15 @@ int main(){
     bool inputComplete = false;
     int enteredNumber = 0;
     bool dataInputComplete = false;
+
+    
+    
+    char searchInput[32] = "";
+    static int searchInputSize = 0;
+    
+    static bool searchInputComplete = false;
+    static int searchValue = 0;
+    
     
     static int* values = NULL;
     struct Node* head = NULL;
@@ -245,6 +288,7 @@ int main(){
 
     while (!WindowShouldClose()) {    
         //debut step1
+        
         if (step1){
             BeginTextureMode(target);
             ClearBackground(RAYWHITE);
@@ -257,7 +301,7 @@ int main(){
         }
      
         //deroulement des etapes
-        if(is_left_click_pressed(button_0)) { 
+        if(is_left_click_pressed(button_0) && step1 ) { 
             step1=false;
             step2 = true;
         }
@@ -277,6 +321,7 @@ int main(){
                 }
 
                 if (IsKeyPressed(KEY_ENTER) && (atoi(text) != 0)) { // Clicking on ENTER will finalize the input
+                    
                     inputComplete = true;
                     enteredNumber = atoi(text); // Convert the entered text to an integer
                 }
@@ -383,6 +428,7 @@ int main(){
                     step4_1 = false;
                     step5 = true;
                     dataInputComplete = true; // Ajout de cette ligne
+                    temp = head;
                 }
             }
             
@@ -397,12 +443,57 @@ int main(){
         if(step4_2){
             head = createRandomDoublyLinkedList(enteredNumber);
             step5 = true;
-            step4_2 = false;   
+            step4_2 = false;  
+          temp = head;            
         }
     
         //debut final step for creation
         if(step5){
+            
+            
+           BeginTextureMode(target);
+           ClearBackground(RAYWHITE);
            
+           
+           if((step_search && start) && (temp != NULL))
+             {
+                 
+                 int cpt = 1;
+                 
+                 BeginTextureMode(target);
+                 if(!occ){
+                 DrawText("searching...",SCREEN_WIDTH / 2 - MeasureText("searching...:", 20) / 2,SCREEN_HEIGHT / 2 - 75,20,BLACK);
+                 EndTextureMode();
+                 search_val(temp,searchValue,&occ);
+                 cpt++;
+                 temp = temp->next;
+                 }
+                 else
+                 {
+                     
+                     step_search = false;
+                 }
+           
+             sleep(1);
+             EndTextureMode();
+            
+             }
+             if(temp == NULL && !occ)
+             {
+                 BeginTextureMode(target);
+                 DrawText("the value you are looking for doesnt exist in this DLL.",SCREEN_WIDTH / 2 - MeasureText("the value you are looking for doesnt exist in this DLL.:", 20) / 2,SCREEN_HEIGHT / 2 - 100,20,BLACK);
+                 EndTextureMode();
+                 
+             }
+             if(occ)
+             {
+                 BeginTextureMode(target);
+                 DrawText(("the value has been found in the DLL!"),SCREEN_WIDTH / 2 - MeasureText("the value has been found in the DLL!", 20) / 2,SCREEN_HEIGHT / 2 - 100,20,BLACK);
+                 
+                 EndTextureMode();
+             }
+             
+             
             visualizeDoublyLinkedList(head, target);
          
             BeginTextureMode(target);
@@ -426,19 +517,32 @@ int main(){
             DrawRectangleLines(button_new.rec.x, button_new.rec.y, button_new.rec.width, button_new.rec.height, BLACK);
             DrawText("create  ", button_new.rec.x + button_new.rec.width / 2 - MeasureText("create ", 20) / 2,
             button_new.rec.y + button_new.rec.height / 2 - 20 / 2, 20, BLACK);
+            
+            DrawRectangleRec(button_search.rec, button_search.col);
+            DrawRectangleLines(button_search.rec.x, button_search.rec.y, button_search.rec.width, button_search.rec.height, BLACK);
+            DrawText("search  ", button_search.rec.x + button_search.rec.width / 2 - MeasureText("search ", 20) / 2,
+            button_search.rec.y + button_search.rec.height / 2 - 20 / 2, 20, BLACK);
              
-            EndTextureMode();          
+             start = true;
+             
+             
+            EndTextureMode();
+
+            
         }
  
+        //sort
         if (is_left_click_pressed(button_sort)){
             selectionSortDoublyLinkedList(head);
         }
                
+         //generate new
         if (is_left_click_pressed(button_new)){
             textSize = 0;
 
             inputComplete = false;
             enteredNumber = 0;
+            memset(text, 0, sizeof(text));
             dataInputComplete = false;
 
             currentNode = 1;
@@ -448,6 +552,68 @@ int main(){
             step2 = true;
             step5 = false;
         }
+        
+        //select search
+        if (is_left_click_pressed(button_search))
+        {
+          step_search_val = true;
+          start = false;
+          step5 = false;
+          temp = head;
+          occ = false;
+          
+          searchInputSize=0;
+          searchInputComplete=false;
+          memset(searchInput, 0, sizeof(searchInput));
+          
+        }
+        
+        //input de la valeur a rechercher
+        if(step_search_val)
+        
+        {
+          
+        if (!searchInputComplete) {
+        int key = GetKeyPressed();
+
+        if ((key >= 48 && key <= 57) && (searchInputSize < 31)) {
+            searchInput[searchInputSize] = (char)key;
+            searchInputSize++;
+        } else if (key == KEY_BACKSPACE && searchInputSize > 0) {
+            searchInputSize--;
+            searchInput[searchInputSize] = '\0';
+        }
+
+        if (IsKeyPressed(KEY_ENTER) && searchInputSize > 0) {
+            searchValue = atoi(searchInput);
+            searchInputComplete = true;
+        }
+        }else{
+            
+            step_search_val = false;
+            step_search = true;
+            step5 = true;
+        }
+
+         BeginTextureMode(target);
+          ClearBackground(GRAY);
+    
+          DrawRectangleRec(button.rec, button.col);
+          DrawRectangleLines(SCREEN_WIDTH / 2 - buttonWidth / 2 , SCREEN_HEIGHT / 2 - buttonHeight / 2 , buttonWidth , buttonHeight , WHITE );
+
+          DrawText(searchInput, textPosition.x, textPosition.y, 40, WHITE); // Display the entered digits
+
+          if (!searchInputComplete) {
+          DrawText("Enter the value to search:", SCREEN_WIDTH / 2 - MeasureText("Enter the value to search:", 20) / 2, SCREEN_HEIGHT / 2 - 100, 20, BLACK);
+          DrawText("Press ENTER to confirm", SCREEN_WIDTH / 2 - MeasureText("Press ENTER to confirm", 20) / 2, SCREEN_HEIGHT / 2 + 90, 20, BLACK);
+          }
+          
+        
+            EndTextureMode();
+          }
+          
+          
+         
 
         //debute main inter
         BeginDrawing();

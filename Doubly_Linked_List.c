@@ -115,8 +115,7 @@ void visualizeDoublyLinkedList(struct Node* head,RenderTexture2D canvas){
         temp = temp->next;
     }
     BeginTextureMode(canvas);
-    
-             
+                
     int count = 0;
     struct Node* current = head;
     Vector2 nodePosition = {SCREEN_WIDTH / (nodeCount + 1), SCREEN_HEIGHT / 2};
@@ -151,32 +150,29 @@ void visualizeDoublyLinkedList(struct Node* head,RenderTexture2D canvas){
     EndTextureMode();
 }
   
+//fonction to change color of current node
+void change_color(struct Node *current,Color col){
+    if(current != NULL){
+        current->col=col; 
+    }
+}
   
-  //fonction to change color of current node
-  void change_color(struct Node *current,Color col)
-  {
-      current->col=col;
-      
-  }
-  
-  //fonction to search
-  void search_val(struct Node *current,int val,bool *st)
-  {
-        if (current != NULL){
+//fonction to search
+void search_val(struct Node *current,int val,bool *st){
+    if (current != NULL){
         if(current->prev != NULL) change_color((current->prev),BLUE);
-       if(current->data == val){
-          change_color((current),GREEN);
-          *st = true;
-      }else{
-          change_color(current,RED);
-          
-      }
-     }
-      
-  }
+        if(current->data == val){
+            change_color((current),GREEN);
+            *st = true;
+        }
+        else{
+            change_color(current,RED);        
+        }
+    }
+}
   
-  //fonction to sort
- void selectionSortDoublyLinkedList(struct Node* head) {
+//fonction to sort
+void selectionSortDoublyLinkedList(struct Node* head) {
     if (head == NULL || head->next == NULL) {
         return; // Nothing to sort if the list is empty or has only one node
     }
@@ -184,23 +180,82 @@ void visualizeDoublyLinkedList(struct Node* head,RenderTexture2D canvas){
     struct Node* current = head;
 
     while (current->next != NULL) {
-    struct Node* minNode = current;
-    struct Node* temp = current->next;
+        struct Node* minNode = current;
+        struct Node* temp = current->next;
 
-    while (temp != NULL) {
-        if (temp->data < minNode->data) {
-            minNode = temp;
+        while (temp != NULL) {
+            if (temp->data < minNode->data) {
+                minNode = temp;
+            }
+            temp = temp->next;
         }
-        temp = temp->next;
+
+        // Swap data between current and minNode
+        int tempData = current->data;
+        current->data = minNode->data;
+        minNode->data = tempData;
+
+        current = current->next;
+    }
+}
+
+//Check if value is in the Dll  
+int isNumberInList(struct Node* head, int number) {
+    while (head != NULL) {
+        if (head->data == number) {
+            return 1;  // Number is found
+        }
+        head = head->next;
+    }
+    return 0;  // Number is not found
+}
+
+//Delete element in DLL 
+struct Node* DeleteElement(struct Node** head,int value) { 
+
+    struct Node* current = *head;
+
+    while (current != NULL && current->data != value) {
+        current = current->next;
+    }
+    
+    // If the node to be deleted is the head
+    if (current == *head) {
+        *head = current->next;
+    }
+    
+    // Adjust the pointers of the previous and next nodes
+    if (current->prev != NULL) {
+        current->prev->next = current->next;
+    }
+    if (current->next != NULL) {
+        current->next->prev = current->prev;
     }
 
-    // Swap data between current and minNode
-    int tempData = current->data;
-    current->data = minNode->data;
-    minNode->data = tempData;
+    free(current);
 
-    current = current->next;
+    return head;
+}
+
+//insert element par la tete 
+void insertAtHead(struct Node** head, int value) {
+    // Create a new node
+    struct Node* newNode = createNode(value);
+    if (newNode == NULL) {
+        printf("Memory allocation error\n");
+        exit(EXIT_FAILURE);
     }
+    newNode->data = value;
+    newNode->prev = NULL;
+    newNode->next = *head;
+
+    // If the list is not empty, update the previous pointer of the current head
+    if (*head != NULL) {
+        (*head)->prev = newNode;
+    }
+
+    // Update the head pointer to the new node
+    *head = newNode;
 }
 
 
@@ -259,8 +314,13 @@ int main(){
     bool step5 = false;
     bool step_search = false;
     bool step_search_val = false;
+    bool step_del = false;
+    bool step_add = false;
     bool start=false;
+    //reset affichage
     bool occ = false;
+    bool aff = false;
+    bool NoDel = false;
    
     // Text input properties
     int textSize = 0;
@@ -270,7 +330,6 @@ int main(){
     int enteredNumber = 0;
     bool dataInputComplete = false;
 
-    
     
     char searchInput[32] = "";
     static int searchInputSize = 0;
@@ -285,10 +344,11 @@ int main(){
     
     int nodeCount = 0;
     struct Node* temp;
+    struct Node* reset;
 
-    while (!WindowShouldClose()) {    
-        //debut step1
-        
+    while (!WindowShouldClose()) {   
+    
+        //debut step1: Welcome screen 
         if (step1){
             BeginTextureMode(target);
             ClearBackground(RAYWHITE);
@@ -306,7 +366,7 @@ int main(){
             step2 = true;
         }
  
-        //debut step2
+        //debut step2: Définir la taille de la DLL
         if(step2){ 
             if (!inputComplete) {
                 int key = GetKeyPressed(); // Get the pressed key 
@@ -321,7 +381,6 @@ int main(){
                 }
 
                 if (IsKeyPressed(KEY_ENTER) && (atoi(text) != 0)) { // Clicking on ENTER will finalize the input
-                    
                     inputComplete = true;
                     enteredNumber = atoi(text); // Convert the entered text to an integer
                 }
@@ -351,7 +410,7 @@ int main(){
             step3 = true;
         }
 
-        //debut step3
+        //debut step3: choix du type de la liste (random or pre set)
         if(step3 && enteredNumber > 0){
             BeginTextureMode(target);
             ClearBackground(RAYWHITE);
@@ -369,19 +428,18 @@ int main(){
             EndTextureMode();
         }
  
-       if(step3){
+        if(step3){
             if(is_left_click_pressed(button_set)){
                 step3 = false;
                 step4_1 = true;
-            }
-            
+            }           
             if(is_left_click_pressed(button_random)){
                 step3 = false;
                 step4_2 = true;
             }
-       }
+        }
         
-        //debut step4_1
+        //debut step4_1: Donner les valeurs de la pre set DLL
         if(step4_1){ 
             BeginTextureMode(target);
             ClearBackground(GRAY);
@@ -439,60 +497,51 @@ int main(){
             EndTextureMode();
         }
        
-        //debut step 4_2
+        //debut step 4_2: Création d'une DLL avec des valeurs aléatoires 
         if(step4_2){
             head = createRandomDoublyLinkedList(enteredNumber);
             step5 = true;
             step4_2 = false;  
-          temp = head;            
+            temp = head;            
         }
     
         //debut final step for creation
         if(step5){
-            
-            
-           BeginTextureMode(target);
-           ClearBackground(RAYWHITE);
+      
+            BeginTextureMode(target);
+            ClearBackground(RAYWHITE);
            
            
-           if((step_search && start) && (temp != NULL))
-             {
+            if((step_search && start) && (temp != NULL)){
+                int cpt = 1;
                  
-                 int cpt = 1;
-                 
-                 BeginTextureMode(target);
-                 if(!occ){
-                 DrawText("searching...",SCREEN_WIDTH / 2 - MeasureText("searching...:", 20) / 2,SCREEN_HEIGHT / 2 - 75,20,BLACK);
-                 EndTextureMode();
-                 search_val(temp,searchValue,&occ);
-                 cpt++;
-                 temp = temp->next;
-                 }
-                 else
-                 {
-                     
-                     step_search = false;
-                 }
+                BeginTextureMode(target);
+                if(!occ){
+                    DrawText("searching...",SCREEN_WIDTH / 2 - MeasureText("searching...:", 20) / 2,SCREEN_HEIGHT / 2 - 75,20,BLACK);
+                    EndTextureMode();
+                    search_val(temp,searchValue,&occ);
+                    cpt++;
+                    reset = temp;
+                    temp = temp->next;
+                }
+                else{
+                    step_search = false;
+                }
            
-             sleep(1);
-             EndTextureMode();
-            
-             }
-             if(temp == NULL && !occ)
-             {
-                 BeginTextureMode(target);
-                 DrawText("the value you are looking for doesnt exist in this DLL.",SCREEN_WIDTH / 2 - MeasureText("the value you are looking for doesnt exist in this DLL.:", 20) / 2,SCREEN_HEIGHT / 2 - 100,20,BLACK);
-                 EndTextureMode();
+                sleep(1);
+                EndTextureMode();
+            }
+            if(temp == NULL && !occ && aff){
+                BeginTextureMode(target);
+                DrawText("the value you are looking for doesnt exist in this DLL.",SCREEN_WIDTH / 2 - MeasureText("the value you are looking for doesnt exist in this DLL.:", 20) / 2,SCREEN_HEIGHT / 2 - 100,20,BLACK);
+                EndTextureMode();   
+            }
+            if(occ){
+                BeginTextureMode(target);
+                DrawText(("the value has been found in the DLL!"),SCREEN_WIDTH / 2 - MeasureText("the value has been found in the DLL!", 20) / 2,SCREEN_HEIGHT / 2 - 100,20,BLACK);
                  
-             }
-             if(occ)
-             {
-                 BeginTextureMode(target);
-                 DrawText(("the value has been found in the DLL!"),SCREEN_WIDTH / 2 - MeasureText("the value has been found in the DLL!", 20) / 2,SCREEN_HEIGHT / 2 - 100,20,BLACK);
-                 
-                 EndTextureMode();
-             }
-             
+                EndTextureMode();
+            }
              
             visualizeDoublyLinkedList(head, target);
          
@@ -522,21 +571,28 @@ int main(){
             DrawRectangleLines(button_search.rec.x, button_search.rec.y, button_search.rec.width, button_search.rec.height, BLACK);
             DrawText("search  ", button_search.rec.x + button_search.rec.width / 2 - MeasureText("search ", 20) / 2,
             button_search.rec.y + button_search.rec.height / 2 - 20 / 2, 20, BLACK);
-             
-             start = true;
-             
-             
-            EndTextureMode();
-
             
+            if(!aff){
+                change_color(reset,BLUE); 
+            }
+            if (NoDel){
+                DrawText("No deleted element", SCREEN_WIDTH / 2 - MeasureText("No deleted element", 20) / 2, SCREEN_HEIGHT / 1.5 , 20, BLACK); 
+            }
+            
+            start = true;
+  
+            EndTextureMode();          
         }
  
-        //sort
+        //trie par selection 
         if (is_left_click_pressed(button_sort)){
+            occ = false;
+            aff=false;
+            NoDel = false;
             selectionSortDoublyLinkedList(head);
         }
                
-         //generate new
+        //generate new
         if (is_left_click_pressed(button_new)){
             textSize = 0;
 
@@ -544,6 +600,10 @@ int main(){
             enteredNumber = 0;
             memset(text, 0, sizeof(text));
             dataInputComplete = false;
+            
+            occ = false;
+            aff=true;
+            NoDel = false; 
 
             currentNode = 1;
     
@@ -554,66 +614,190 @@ int main(){
         }
         
         //select search
-        if (is_left_click_pressed(button_search))
-        {
-          step_search_val = true;
-          start = false;
-          step5 = false;
-          temp = head;
-          occ = false;
+        if (is_left_click_pressed(button_search)){
+            step_search_val = true;
+            start = false;
+            step5 = false;
+            temp = head;
+            
+            occ = false;
+            aff=true;
+            NoDel = false; 
           
-          searchInputSize=0;
-          searchInputComplete=false;
-          memset(searchInput, 0, sizeof(searchInput));
-          
+            searchInputSize=0;
+            searchInputComplete=false;
+            memset(searchInput, 0, sizeof(searchInput));       
         }
         
         //input de la valeur a rechercher
-        if(step_search_val)
-        
-        {
+        if(step_search_val){
           
-        if (!searchInputComplete) {
-        int key = GetKeyPressed();
+            if (!searchInputComplete) {
+                int key = GetKeyPressed();
 
-        if ((key >= 48 && key <= 57) && (searchInputSize < 31)) {
-            searchInput[searchInputSize] = (char)key;
-            searchInputSize++;
-        } else if (key == KEY_BACKSPACE && searchInputSize > 0) {
-            searchInputSize--;
-            searchInput[searchInputSize] = '\0';
-        }
+                if ((key >= 48 && key <= 57) && (searchInputSize < 31)) {
+                    searchInput[searchInputSize] = (char)key;
+                    searchInputSize++;
+                } 
+                else if (key == KEY_BACKSPACE && searchInputSize > 0) {
+                    searchInputSize--;
+                    searchInput[searchInputSize] = '\0';
+                }
 
-        if (IsKeyPressed(KEY_ENTER) && searchInputSize > 0) {
-            searchValue = atoi(searchInput);
-            searchInputComplete = true;
-        }
-        }else{
-            
-            step_search_val = false;
-            step_search = true;
-            step5 = true;
-        }
+                if (IsKeyPressed(KEY_ENTER) && searchInputSize > 0) {
+                    searchValue = atoi(searchInput);
+                    searchInputComplete = true;
+                }
+            }
+            else{           
+                step_search_val = false;
+                step_search = true;
+                step5 = true;
+            }
 
-         BeginTextureMode(target);
-          ClearBackground(GRAY);
+            BeginTextureMode(target);
+            ClearBackground(GRAY);
     
-          DrawRectangleRec(button.rec, button.col);
-          DrawRectangleLines(SCREEN_WIDTH / 2 - buttonWidth / 2 , SCREEN_HEIGHT / 2 - buttonHeight / 2 , buttonWidth , buttonHeight , WHITE );
+            DrawRectangleRec(button.rec, button.col);
+            DrawRectangleLines(SCREEN_WIDTH / 2 - buttonWidth / 2 , SCREEN_HEIGHT / 2 - buttonHeight / 2 , buttonWidth , buttonHeight ,   WHITE );
 
-          DrawText(searchInput, textPosition.x, textPosition.y, 40, WHITE); // Display the entered digits
+            DrawText(searchInput, textPosition.x, textPosition.y, 40, WHITE); // Display the entered digits
 
-          if (!searchInputComplete) {
-          DrawText("Enter the value to search:", SCREEN_WIDTH / 2 - MeasureText("Enter the value to search:", 20) / 2, SCREEN_HEIGHT / 2 - 100, 20, BLACK);
-          DrawText("Press ENTER to confirm", SCREEN_WIDTH / 2 - MeasureText("Press ENTER to confirm", 20) / 2, SCREEN_HEIGHT / 2 + 90, 20, BLACK);
-          }
-          
+            if (!searchInputComplete) {
+                DrawText("Enter the value to search:", SCREEN_WIDTH / 2 - MeasureText("Enter the value to search:", 20) / 2, SCREEN_HEIGHT / 2 - 100, 20, BLACK);
+                DrawText("Press ENTER to confirm", SCREEN_WIDTH / 2 - MeasureText("Press ENTER to confirm", 20) / 2, SCREEN_HEIGHT / 2 + 90, 20, BLACK);
+            }
         
             EndTextureMode();
-          }
+        }
+        
+        //Supprimer un element 
+        if (is_left_click_pressed(button_supp)){ 
+            textSize = 0;
+
+            inputComplete = false;
+            enteredNumber = 0;
+            memset(text, 0, sizeof(text));
+            dataInputComplete = false;
+            
+            occ = false;
+            aff=false;
+            NoDel = false; 
+            
+            step5 = false;
+            step_del = true;
+        }
+        
+        //Ajouter un element 
+        if (is_left_click_pressed(button_insert)){  
+            textSize = 0;
+
+            inputComplete = false;
+            enteredNumber = 0;
+            memset(text, 0, sizeof(text));
+            dataInputComplete = false;
+            
+            occ = false;
+            aff=false;
+            NoDel = false; 
+            
+            step5 = false;
+            step_add = true;
+        }
+        
+        //debut step_del 
+        if(step_del){
+            if (!inputComplete) {
+                int key = GetKeyPressed(); // Get the pressed key 
+
+                if ((key >= 48 && key <= 57) && (textSize < 63)) { // Check if the key is a number and within text limit
+                    text[textSize] = (char)key; // Store entered digit in the text array
+                    textSize++;
+                }
+                else if (key == KEY_BACKSPACE && textSize > 0) { // Check for backspace to delete the last digit
+                    textSize--;
+                    text[textSize] = '\0'; // Null-terminate the string to erase the last character
+                }
+
+                if (IsKeyPressed(KEY_ENTER) && (atoi(text) != 0)) { // Clicking on ENTER will finalize the input
+                    inputComplete = true;
+                    enteredNumber = atoi(text); // Convert the entered text to an integer
+                }
+            }
+            
+            BeginTextureMode(target);
+            ClearBackground(GRAY);
+            DrawRectangleRec(button.rec, button.col);
+            DrawRectangleLines(SCREEN_WIDTH / 2 - buttonWidth / 2 , SCREEN_HEIGHT / 2 - buttonHeight / 2 , buttonWidth , buttonHeight , WHITE );
+
+            DrawText(text, textPosition.x, textPosition.y, 40, WHITE); // Display the entered digits
+
+            if (!inputComplete ) {
+                DrawText("Enter the value of the element to add", SCREEN_WIDTH / 2 - MeasureText("Enter the value of the element to add", 20) / 2, SCREEN_HEIGHT / 2 - buttonHeight , 20, BLACK);
+                DrawText("Click on the ENTER key to finalize input.", SCREEN_WIDTH / 2 - MeasureText("Click on the ENTER key to finalize input.", 20) / 2, SCREEN_HEIGHT / 2 + buttonHeight , 20, BLACK);
+            }
+            else{
+                DrawText("Input Completed!", SCREEN_WIDTH / 2 - MeasureText("Input Completed!", 20) / 2, SCREEN_HEIGHT / 2 - buttonHeight / 2 + 130, 20, BLACK);
+                DrawText("press on the SPACEBAR for the next step.", SCREEN_WIDTH / 2 - MeasureText("press on the SPACEBAR for the next step!", 20) / 2, SCREEN_HEIGHT / 2 - buttonHeight / 2 + 170, 20, BLACK);     
+            }
+            EndTextureMode();
+            
+            if(IsKeyPressed(KEY_SPACE) && inputComplete){
+                if(isNumberInList(head,enteredNumber)){    
+                    DeleteElement(&head,enteredNumber);                    
+                }
+                else{
+                    NoDel = true; 
+                }
+                step_del = false;
+                step5 = true;
+            }
+        }
+        
+        //debut step add
+        if(step_add){
+            if (!inputComplete) {
+                int key = GetKeyPressed(); // Get the pressed key 
+
+                if ((key >= 48 && key <= 57) && (textSize < 63)) { // Check if the key is a number and within text limit
+                    text[textSize] = (char)key; // Store entered digit in the text array
+                    textSize++;
+                }
+                else if (key == KEY_BACKSPACE && textSize > 0) { // Check for backspace to delete the last digit
+                    textSize--;
+                    text[textSize] = '\0'; // Null-terminate the string to erase the last character
+                }
+
+                if (IsKeyPressed(KEY_ENTER) && (atoi(text) != 0)) { // Clicking on ENTER will finalize the input
+                    inputComplete = true;
+                    enteredNumber = atoi(text); // Convert the entered text to an integer
+                }
+            }
+            
+            BeginTextureMode(target);
+            ClearBackground(GRAY);
+            DrawRectangleRec(button.rec, button.col);
+            DrawRectangleLines(SCREEN_WIDTH / 2 - buttonWidth / 2 , SCREEN_HEIGHT / 2 - buttonHeight / 2 , buttonWidth , buttonHeight , WHITE );
+
+            DrawText(text, textPosition.x, textPosition.y, 40, WHITE); // Display the entered digits
+
+            if (!inputComplete ) {
+                DrawText("Enter the value of the element to add", SCREEN_WIDTH / 2 - MeasureText("Enter the value of the element to add", 20) / 2, SCREEN_HEIGHT / 2 - buttonHeight , 20, BLACK);
+                DrawText("Click on the ENTER key to finalize input.", SCREEN_WIDTH / 2 - MeasureText("Click on the ENTER key to finalize input.", 20) / 2, SCREEN_HEIGHT / 2 + buttonHeight , 20, BLACK);
+            }
+            else{
+                DrawText("Input Completed!", SCREEN_WIDTH / 2 - MeasureText("Input Completed!", 20) / 2, SCREEN_HEIGHT / 2 - buttonHeight / 2 + 130, 20, BLACK);
+                DrawText("press on the SPACEBAR for the next step.", SCREEN_WIDTH / 2 - MeasureText("press on the SPACEBAR for the next step!", 20) / 2, SCREEN_HEIGHT / 2 - buttonHeight / 2 + 170, 20, BLACK);     
+            }
+            EndTextureMode();
+             
+            if(IsKeyPressed(KEY_SPACE) && inputComplete ){
+                insertAtHead(&head,enteredNumber);
+                step_add = false;
+                step5 = true;
+            }
+        }
           
-          
-         
 
         //debute main inter
         BeginDrawing();

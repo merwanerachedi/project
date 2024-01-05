@@ -549,14 +549,14 @@ int main(){
                 
             
             
-            if(temp == NULL && !occ ){
+            if(temp == NULL && !occ && !aff ){
                 BeginTextureMode(target);
                 DrawText("the value you are looking for doesnt exist in this DLL.",SCREEN_WIDTH / 2 - MeasureText("the value you are looking for doesnt exist in this DLL.:", 20) / 2,SCREEN_HEIGHT / 2 - 100,20,BLACK);
                 
                 
                 EndTextureMode();   
             }
-            if(occ){
+            if(occ && !aff){
                 BeginTextureMode(target);
                 DrawText(("the value has been found in the DLL!"),SCREEN_WIDTH / 2 - MeasureText("the value has been found in the DLL!", 20) / 2,SCREEN_HEIGHT / 2 - 100,20,BLACK);
                 
@@ -648,6 +648,16 @@ int main(){
         
         //select search
         if (is_left_click_pressed(button_search)){
+            
+            
+            if(temp != NULL)
+                {
+                    change_color(temp->prev,BLUE);
+                }
+                reset=getEnd(head);
+                change_color(reset,BLUE); 
+                
+                
             step_search_val = true;
             start = false;
             step5 = false;
@@ -659,7 +669,9 @@ int main(){
           
             searchInputSize=0;
             searchInputComplete=false;
-            memset(searchInput, 0, sizeof(searchInput));       
+            memset(searchInput, 0, sizeof(searchInput));      
+
+                
         }
         
         //input de la valeur a rechercher

@@ -90,6 +90,20 @@ struct Node* createRandomDoublyLinkedList(int size){
     return head;
 }
 
+//DLL get end
+struct Node* getEnd(struct Node* head)
+{
+    if (head != NULL) 
+    {
+    while(head->next != NULL){
+        head = head->next;
+    }
+    
+    }
+    return head;
+
+}
+
 //noeud represent
 void drawNode(struct Node* node, Vector2 pos, int nodeCount) {
     int rectWidth = SCREEN_WIDTH / (nodeCount * 2);
@@ -234,7 +248,7 @@ struct Node* DeleteElement(struct Node** head,int value) {
 
     free(current);
 
-    return head;
+    return *head;
 }
 
 //insert element par la tete 
@@ -521,8 +535,9 @@ int main(){
                     EndTextureMode();
                     search_val(temp,searchValue,&occ);
                     cpt++;
-                    reset = temp;
+                    
                     temp = temp->next;
+                    reset = temp->prev;
                 }
                 else{
                     step_search = false;
@@ -531,16 +546,38 @@ int main(){
                 sleep(1);
                 EndTextureMode();
             }
-            if(temp == NULL && !occ && aff){
+                
+            
+            
+            if(temp == NULL && !occ ){
                 BeginTextureMode(target);
                 DrawText("the value you are looking for doesnt exist in this DLL.",SCREEN_WIDTH / 2 - MeasureText("the value you are looking for doesnt exist in this DLL.:", 20) / 2,SCREEN_HEIGHT / 2 - 100,20,BLACK);
+                
+                
                 EndTextureMode();   
             }
             if(occ){
                 BeginTextureMode(target);
                 DrawText(("the value has been found in the DLL!"),SCREEN_WIDTH / 2 - MeasureText("the value has been found in the DLL!", 20) / 2,SCREEN_HEIGHT / 2 - 100,20,BLACK);
+                
                  
                 EndTextureMode();
+            }
+            
+            
+                 
+            if(aff)
+            {
+                if(temp != NULL)
+                {
+                    change_color(temp->prev,BLUE);
+                }
+                reset=getEnd(head);
+                change_color(reset,BLUE);
+            }
+            
+            if (NoDel){
+                DrawText("No deleted element", SCREEN_WIDTH / 2 - MeasureText("No deleted element", 20) / 2, SCREEN_HEIGHT / 1.5 , 20, BLACK); 
             }
              
             visualizeDoublyLinkedList(head, target);
@@ -572,14 +609,10 @@ int main(){
             DrawText("search  ", button_search.rec.x + button_search.rec.width / 2 - MeasureText("search ", 20) / 2,
             button_search.rec.y + button_search.rec.height / 2 - 20 / 2, 20, BLACK);
             
-            if(!aff){
-                change_color(reset,BLUE); 
-            }
-            if (NoDel){
-                DrawText("No deleted element", SCREEN_WIDTH / 2 - MeasureText("No deleted element", 20) / 2, SCREEN_HEIGHT / 1.5 , 20, BLACK); 
-            }
+            
             
             start = true;
+            
   
             EndTextureMode();          
         }
@@ -587,7 +620,7 @@ int main(){
         //trie par selection 
         if (is_left_click_pressed(button_sort)){
             occ = false;
-            aff=false;
+            aff=true;
             NoDel = false;
             selectionSortDoublyLinkedList(head);
         }
@@ -602,7 +635,7 @@ int main(){
             dataInputComplete = false;
             
             occ = false;
-            aff=true;
+            
             NoDel = false; 
 
             currentNode = 1;
@@ -621,7 +654,7 @@ int main(){
             temp = head;
             
             occ = false;
-            aff=true;
+            aff=false;
             NoDel = false; 
           
             searchInputSize=0;
@@ -680,8 +713,8 @@ int main(){
             memset(text, 0, sizeof(text));
             dataInputComplete = false;
             
-            occ = false;
-            aff=false;
+            
+            aff=true;
             NoDel = false; 
             
             step5 = false;
@@ -697,8 +730,8 @@ int main(){
             memset(text, 0, sizeof(text));
             dataInputComplete = false;
             
-            occ = false;
-            aff=false;
+            
+            aff=true;
             NoDel = false; 
             
             step5 = false;

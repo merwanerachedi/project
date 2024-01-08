@@ -273,6 +273,44 @@ void insertAtHead(struct Node** head, int value) {
 }
 
 
+//pour voir si la liste est triée
+bool isDoublyLinkedListSorted(struct Node* head) {
+    
+    if (head == NULL || head->next == NULL) {
+        return true;
+    }
+    
+    struct Node* current = head;
+    while (current->next != NULL) {
+        
+        if (current->data > current->next->data) {
+            return false;
+        }
+        current = current->next;
+    }
+    return true;
+}
+
+void visu_trie(struct Node* head,struct Node** Pmin)
+{
+   
+   if(head != NULL)
+   {
+     
+    
+    if(head->data <= (*Pmin)->data){
+        *Pmin = head;
+        (*Pmin)->col = GREEN;
+    }else{
+        head->col = RED;
+    }
+    
+
+   }
+
+}
+
+
 int main(){
     
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Input Visualization");
@@ -331,6 +369,7 @@ int main(){
     bool step_del = false;
     bool step_add = false;
     bool start=false;
+    bool step_trie=false;
     //reset affichage
     bool occ = false;
     bool aff = false;
@@ -359,6 +398,11 @@ int main(){
     int nodeCount = 0;
     struct Node* temp;
     struct Node* reset;
+    
+    int x;
+    struct Node *p = NULL;
+    struct Node *after = NULL;
+    struct Node *before = NULL;
 
     while (!WindowShouldClose()) {   
     
@@ -525,6 +569,46 @@ int main(){
             BeginTextureMode(target);
             ClearBackground(RAYWHITE);
            
+           if(step_trie){
+               
+               BeginTextureMode(target);
+              
+               
+               if(!isDoublyLinkedListSorted(head))
+               {
+                   if(temp != NULL){
+                       if (after == NULL ){
+                           x=before->data;
+                           before->data = p->data;
+                           p->data = x;
+                           temp = temp->next;
+                           after = temp;
+                           p = temp;
+                           before = temp;
+                           
+                           
+                       }else{
+                           DrawText("sorting...:",SCREEN_WIDTH / 2 - MeasureText("sorting...:", 20) / 2,SCREEN_HEIGHT / 2 - 75,20,BLACK);
+                           visu_trie(after,&p);
+                           after = after->next;
+                           sleep(2);
+                           
+                       }
+                           
+                   }
+                  
+                   
+                   
+                   
+             
+               }else{
+                   DrawText("Sorted:",SCREEN_WIDTH / 2 - MeasureText("Sorted:", 20) / 2,SCREEN_HEIGHT / 2 - 75,20,BLACK);
+                   sleep(3);
+                   step_trie = false;
+               }
+               EndTextureMode();
+           } 
+           
            
             if((step_search && start) && (temp != NULL)){
                 int cpt = 1;
@@ -622,7 +706,13 @@ int main(){
             occ = false;
             aff=true;
             NoDel = false;
-            selectionSortDoublyLinkedList(head);
+            step_trie = true;
+            temp=head;
+            
+            after = temp;
+            p = temp;
+             before = temp;
+            
         }
                
         //generate new

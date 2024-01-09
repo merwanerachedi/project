@@ -291,6 +291,7 @@ bool isDoublyLinkedListSorted(struct Node* head) {
     return true;
 }
 
+//pour changer les couleurs lors du trie
 void visu_trie(struct Node* head,struct Node** Pmin)
 {
    
@@ -308,6 +309,14 @@ void visu_trie(struct Node* head,struct Node** Pmin)
 
    }
 
+}
+//reset des couleurs
+void reset_color(struct Node* head)
+{
+    while(head != NULL){
+        change_color(head,BLUE);
+        head = head->next;
+    }
 }
 
 
@@ -374,6 +383,7 @@ int main(){
     bool occ = false;
     bool aff = false;
     bool NoDel = false;
+    bool info = true;
    
     // Text input properties
     int textSize = 0;
@@ -403,6 +413,7 @@ int main(){
     struct Node *p = NULL;
     struct Node *after = NULL;
     struct Node *before = NULL;
+    struct Node *temp2 =NULL;
 
     while (!WindowShouldClose()) {   
     
@@ -520,7 +531,7 @@ int main(){
             if (currentNode <= enteredNumber) {
                 if (!IsKeyDown(KEY_ENTER)) {
                     int key = GetKeyPressed();
-                    if ((key >= 48 && key <= 57) && (textSizeInput < 31)) {
+                    if (((key >= 48 && key <= 57) || key == 45) && (textSizeInput < 31)) {
                         inputText[textSizeInput] = (char)key;
                         textSizeInput++;
                     }
@@ -576,38 +587,43 @@ int main(){
                
                if(!isDoublyLinkedListSorted(head))
                {
-                   if(temp != NULL){
+                   if(temp2 != NULL){
                        if (after == NULL ){
+                           
                            x=before->data;
                            before->data = p->data;
                            p->data = x;
-                           temp = temp->next;
-                           after = temp;
-                           p = temp;
-                           before = temp;
+                           reset_color(temp2);
+                           temp2 = temp2->next;
+                           after = temp2;
+                           p = temp2;
+                           before = temp2;
+                           
                            
                            
                        }else{
                            DrawText("sorting...:",SCREEN_WIDTH / 2 - MeasureText("sorting...:", 20) / 2,SCREEN_HEIGHT / 2 - 75,20,BLACK);
                            visu_trie(after,&p);
+                           sleep(1);
                            after = after->next;
-                           sleep(2);
+                           
                            
                        }
                            
                    }
                   
-                   
-                   
-                   
-             
+                
                }else{
-                   DrawText("Sorted:",SCREEN_WIDTH / 2 - MeasureText("Sorted:", 20) / 2,SCREEN_HEIGHT / 2 - 75,20,BLACK);
-                   sleep(3);
                    step_trie = false;
                }
                EndTextureMode();
            } 
+           if(!step_trie && isDoublyLinkedListSorted(head) && info)
+           {
+               BeginTextureMode(target);
+               DrawText("sorted.",SCREEN_WIDTH / 2 - MeasureText("sorted.", 20) / 2,SCREEN_HEIGHT / 2 - 75,20,BLACK);
+               EndTextureMode();
+           }
            
            
             if((step_search && start) && (temp != NULL)){
@@ -625,6 +641,7 @@ int main(){
                 }
                 else{
                     step_search = false;
+                    info = true;
                 }
            
                 sleep(1);
@@ -655,6 +672,7 @@ int main(){
                 if(temp != NULL)
                 {
                     change_color(temp->prev,BLUE);
+                    temp = NULL;
                 }
                 reset=getEnd(head);
                 change_color(reset,BLUE);
@@ -707,11 +725,11 @@ int main(){
             aff=true;
             NoDel = false;
             step_trie = true;
-            temp=head;
+            temp2=head;
             
-            after = temp;
-            p = temp;
-             before = temp;
+            after = temp2;
+            p = temp2;
+             before = temp2;
             
         }
                
@@ -752,6 +770,7 @@ int main(){
             start = false;
             step5 = false;
             temp = head;
+            info = false;
             
             occ = false;
             aff=false;
@@ -770,7 +789,7 @@ int main(){
             if (!searchInputComplete) {
                 int key = GetKeyPressed();
 
-                if ((key >= 48 && key <= 57) && (searchInputSize < 31)) {
+                if (((key >= 48 && key <= 57) || key == 45) && (searchInputSize < 31)) {
                     searchInput[searchInputSize] = (char)key;
                     searchInputSize++;
                 } 

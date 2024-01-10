@@ -349,7 +349,7 @@ int main(){
     init_button(&button_random,(Rectangle){SCREEN_WIDTH / 2 - buttonWidth * (3 / 2) , SCREEN_HEIGHT / 2 + buttonHeight / 2 , buttonWidth / 2 , buttonHeight }, RED);
     
     Button button_set = { 0 };
-    init_button(&button_set,(Rectangle){SCREEN_WIDTH / 2 + buttonWidth / 3 , SCREEN_HEIGHT / 2 + buttonHeight / 2  , buttonWidth / 2 , buttonHeight }, RED);
+    init_button(&button_set,(Rectangle){SCREEN_WIDTH / 2 + buttonWidth / 3 + 50 , SCREEN_HEIGHT / 2 + buttonHeight / 2  , buttonWidth / 2 , buttonHeight }, RED);
 
     Button button_sort = { 0 };
     init_button(&button_sort, (Rectangle){SCREEN_WIDTH / 2.7 + buttonWidth * (3 / 2) , SCREEN_HEIGHT - 50, buttonWidth / 2, buttonHeight / 2 - 20}, GREEN);
@@ -484,14 +484,14 @@ int main(){
             BeginTextureMode(target);
             ClearBackground(RAYWHITE);
             
-            DrawText("Select one of the choices below.", SCREEN_WIDTH / 2 - MeasureText("Select one of the choices below.", 20) / 2, SCREEN_HEIGHT / 2 - 100 , 20, BLACK);
+            DrawText("Select one of the choices below.", SCREEN_WIDTH / 2 - MeasureText("Select one of the choices below.", 26) / 2, SCREEN_HEIGHT / 2 - 100 , 26, BLACK);
         
             DrawRectangleRec(button_random.rec, button_random.col);
             DrawRectangleLines(SCREEN_WIDTH / 2 - buttonWidth * (3 / 2) , SCREEN_HEIGHT / 2 + buttonHeight / 2 , buttonWidth / 2 , buttonHeight , BLACK );
             DrawText("random values",button_random.rec.x + button_random.rec.width / 2 - MeasureText("random values",18) + 60,button_random.rec.y + button_random.rec.height / 2 - 20 / 2 ,18,BLACK);
             
             DrawRectangleRec(button_set.rec, button_set.col);
-            DrawRectangleLines(SCREEN_WIDTH / 2 + buttonWidth / 3 , SCREEN_HEIGHT / 2 + buttonHeight / 2  , buttonWidth / 2 , buttonHeight , BLACK );
+            DrawRectangleLines(SCREEN_WIDTH / 2 + buttonWidth / 3 + 50, SCREEN_HEIGHT / 2 + buttonHeight / 2  , buttonWidth / 2 , buttonHeight , BLACK );
             DrawText("pre set values",button_set.rec.x + button_set.rec.width / 2 - MeasureText("pre set values",18) + 60,button_set.rec.y + button_set.rec.height / 2 - 20 / 2 ,18,BLACK);
  
             EndTextureMode();
@@ -588,8 +588,17 @@ int main(){
                if(!isDoublyLinkedListSorted(head))
                {
                    if(temp2 != NULL){
-                       if (after == NULL ){
+                       if (after != NULL ){
                            
+                           
+                           DrawText("sorting...:",SCREEN_WIDTH / 2 - MeasureText("sorting...:", 20) / 2,SCREEN_HEIGHT / 2 - 75,20,BLACK);
+                           visu_trie(after,&p);
+                           sleep(1);
+                           after = after->next;
+                           
+                           
+                           
+                       }else{
                            x=before->data;
                            before->data = p->data;
                            p->data = x;
@@ -598,14 +607,6 @@ int main(){
                            after = temp2;
                            p = temp2;
                            before = temp2;
-                           
-                           
-                           
-                       }else{
-                           DrawText("sorting...:",SCREEN_WIDTH / 2 - MeasureText("sorting...:", 20) / 2,SCREEN_HEIGHT / 2 - 75,20,BLACK);
-                           visu_trie(after,&p);
-                           sleep(1);
-                           after = after->next;
                            
                            
                        }
@@ -864,7 +865,7 @@ int main(){
             if (!inputComplete) {
                 int key = GetKeyPressed(); // Get the pressed key 
 
-                if ((key >= 48 && key <= 57) && (textSize < 63)) { // Check if the key is a number and within text limit
+                if (((key >= 48 && key <= 57) || key == 45) && (textSize < 63)) { // Check if the key is a number and within text limit
                     text[textSize] = (char)key; // Store entered digit in the text array
                     textSize++;
                 }
@@ -913,7 +914,7 @@ int main(){
             if (!inputComplete) {
                 int key = GetKeyPressed(); // Get the pressed key 
 
-                if ((key >= 48 && key <= 57) && (textSize < 63)) { // Check if the key is a number and within text limit
+                if (((key >= 48 && key <= 57) || key == 45) && (textSize < 63)) { // Check if the key is a number and within text limit
                     text[textSize] = (char)key; // Store entered digit in the text array
                     textSize++;
                 }

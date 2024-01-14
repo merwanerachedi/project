@@ -384,7 +384,7 @@ int main(){
     bool aff = false;
     bool NoDel = false;
     bool info = true;
-   
+   bool aff2 = false;
     // Text input properties
     int textSize = 0;
     char text[64] = { 0 };
@@ -580,51 +580,7 @@ int main(){
             BeginTextureMode(target);
             ClearBackground(RAYWHITE);
            
-           if(step_trie){
-               
-               BeginTextureMode(target);
-              
-               
-               if(!isDoublyLinkedListSorted(head))
-               {
-                   if(temp2 != NULL){
-                       if (after != NULL ){
-                           
-                           
-                           DrawText("sorting...:",SCREEN_WIDTH / 2 - MeasureText("sorting...:", 20) / 2,SCREEN_HEIGHT / 2 - 75,20,BLACK);
-                           visu_trie(after,&p);
-                           sleep(1);
-                           after = after->next;
-                           
-                           
-                           
-                       }else{
-                           x=before->data;
-                           before->data = p->data;
-                           p->data = x;
-                           reset_color(temp2);
-                           temp2 = temp2->next;
-                           after = temp2;
-                           p = temp2;
-                           before = temp2;
-                           
-                           
-                       }
-                           
-                   }
-                  
-                
-               }else{
-                   step_trie = false;
-               }
-               EndTextureMode();
-           } 
-           if(!step_trie && isDoublyLinkedListSorted(head) && info)
-           {
-               BeginTextureMode(target);
-               DrawText("sorted.",SCREEN_WIDTH / 2 - MeasureText("sorted.", 20) / 2,SCREEN_HEIGHT / 2 - 75,20,BLACK);
-               EndTextureMode();
-           }
+           
            
            
             if((step_search && start) && (temp != NULL)){
@@ -668,15 +624,16 @@ int main(){
             
             
                  
-            if(aff)
+            if(aff2)
             {
                 if(temp != NULL)
                 {
                     change_color(temp->prev,BLUE);
-                    temp = NULL;
+                    
                 }
                 reset=getEnd(head);
                 change_color(reset,BLUE);
+                aff2 = false;
             }
             
             if (NoDel){
@@ -712,7 +669,53 @@ int main(){
             DrawText("search  ", button_search.rec.x + button_search.rec.width / 2 - MeasureText("search ", 20) / 2,
             button_search.rec.y + button_search.rec.height / 2 - 20 / 2, 20, BLACK);
             
-            
+            if(step_trie){
+               
+               BeginTextureMode(target);
+              
+               
+               if(!isDoublyLinkedListSorted(head))
+               {
+                   if(temp2 != NULL){
+                       if (after != NULL ){
+                           
+                           
+                           
+                           visu_trie(after,&p);
+                           
+                           after = after->next;
+                           
+                           
+                           
+                       }else{
+                           x=before->data;
+                           before->data = p->data;
+                           p->data = x;
+                           reset_color(temp2);
+                           temp2 = temp2->next;
+                           after = temp2;
+                           p = temp2;
+                           before = temp2;
+                           
+                           
+                       }
+                           
+                   }
+                DrawText("sorting...:",SCREEN_WIDTH / 2 - MeasureText("sorting...:", 20) / 2,SCREEN_HEIGHT / 2 - 75,20,BLACK);
+                sleep(1);
+               }else{
+                   step_trie = false;
+                   info = true;
+               }
+               
+               EndTextureMode();
+           } 
+           if(!step_trie && isDoublyLinkedListSorted(head) && info)
+           {
+               BeginTextureMode(target);
+               DrawText("sorted.",SCREEN_WIDTH / 2 - MeasureText("sorted.", 20) / 2,SCREEN_HEIGHT / 2 - 75,20,BLACK);
+               EndTextureMode();
+           }
             
             start = true;
             
@@ -727,6 +730,7 @@ int main(){
             NoDel = false;
             step_trie = true;
             temp2=head;
+            aff2 = true;
             
             after = temp2;
             p = temp2;
@@ -744,6 +748,7 @@ int main(){
             dataInputComplete = false;
             
             occ = false;
+            step_search = false;
             
             NoDel = false; 
 
@@ -776,6 +781,7 @@ int main(){
             occ = false;
             aff=false;
             NoDel = false; 
+            aff2 = true;
           
             searchInputSize=0;
             searchInputComplete=false;
@@ -838,6 +844,7 @@ int main(){
             
             aff=true;
             NoDel = false; 
+            aff2 = true;
             
             step5 = false;
             step_del = true;
@@ -855,6 +862,7 @@ int main(){
             
             aff=true;
             NoDel = false; 
+            aff2 = true;
             
             step5 = false;
             step_add = true;

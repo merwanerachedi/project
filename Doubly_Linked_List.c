@@ -554,7 +554,7 @@ int main(){
                     head = createDoublyLinkedList(values, enteredNumber);
                     step4_1 = false;
                     step5 = true;
-                    dataInputComplete = true; // Ajout de cette ligne
+                    dataInputComplete = true;
                     temp = head;
                 }
             }
